@@ -15,7 +15,7 @@ class SimpleGUI:
         self.tree.heading("Antall", text="Antall")
 
         # Create buttons
-        self.btn_vareliste = tk.Button(master, text="Vareliste", command=self.show_vareliste)
+        self.btn_vareliste = tk.Button(master, text="Vareliste", command=self.toggle_treeview)
         self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=self.show_vis_ordre)
         self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
 
@@ -26,6 +26,21 @@ class SimpleGUI:
 
         # Grid layout for Treeview
         self.tree.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="w")
+
+        # Initially hide the Treeview
+        self.tree.grid_forget()
+    
+    def toggle_treeview(self):
+    # Toggle the visibility of the Treeview
+        if self.tree.winfo_ismapped():
+        # If currently visible, hide it
+            self.tree.grid_remove()
+        else:
+        # If currently hidden, show it
+            self.tree.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="w")
+        # Call the stored procedure when the button is clicked
+            self.show_vareliste()
+
 
     def show_vareliste(self):
         # Connect to the database
