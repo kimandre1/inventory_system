@@ -1,0 +1,47 @@
+# .gitignore
+
+# Virtual environment
+venv/
+
+# config.yml file
+config.yml
+
+# Compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Byte-compiled files
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables file
+.env
+
+# Miscellaneous
+*.log
+*.pot
+*.pyc
+*.pyo
+__pycache__/
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+*.xlsx
+*.xlsb
+*.ods
+*.zip
+*.gz
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.tar
+*.tgz
+*.log
+*.swp
+*.sublime-workspace
+*.sublime-project
+.vscode/
