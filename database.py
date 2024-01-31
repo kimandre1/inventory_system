@@ -1,5 +1,6 @@
 import mysql.connector, yaml
 from mysql.connector import MySQLConnection, Error
+import mysql.connector
 
 def connect_info():
     with open("config.yml", "r") as yaml_file:
@@ -30,33 +31,6 @@ def connect_to_database():
         'database': config["database"]["name"],
         'port': config["database"]["port"],
     }
-
-"""
-def execute_stored_procedure(connection, procedure_name, args=()):
-    try:
-        # Use a context manager for the cursor to ensure proper cleanup
-        with connection.cursor() as cursor:
-            # Call the stored procedure
-            cursor.callproc(procedure_name, args)
-
-            # If the stored procedure has output parameters, fetch the results
-            results = []
-            for result in cursor.stored_results():
-                data = result.fetchall()
-                results.extend(data)
-
-        return results
-
-    except mysql.connector.Error as e:
-        print(f"Error: {e}")
-        return None
-    from mysql.connector import MySQLConnection, Error
-from config import read_config
-"""
-
-import mysql.connector
-from mysql.connector import Error
-from database import connect_to_database
 
 def execute_stored_procedure(procedure_name):
     try:
