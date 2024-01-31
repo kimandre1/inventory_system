@@ -1,6 +1,5 @@
 import mysql.connector, yaml
 from mysql.connector import MySQLConnection, Error
-import mysql.connector
 
 def connect_info():
     with open("config.yml", "r") as yaml_file:
@@ -64,7 +63,46 @@ def execute_stored_procedure(procedure_name):
         # Close the connection
         if conn.is_connected():
             conn.close()
+"""
+def get_column_names(procedure_name):
+    try:
+        # Read database configuration from the config file using function
+        config = connect_to_database()
 
+        # Establish a connection to the MySQL database
+        conn = mysql.connector.connect(**config)
+        with conn.cursor() as cursor:
+            cursor.callproc(procedure_name)
+            # Fetch at least one row to populate the cursor.description
+            cursor.fetchone()
+            column_names = [desc[0] for desc in cursor.description]
+        return column_names
+    except Exception as e:
+        raise e
+    finally:
+        # Close the connection
+        if conn.is_connected():
+            conn.close()
+"""
+def get_column_names(procedure_name):
+    try:
+        config = connect_to_database()
+        conn = mysql.connector.connect(**config)
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.callproc(procedure_name)
+            cursor.fetchall()  # Fetch all results to populate the cursor.description
+
+            # Fetch column names from the cursor metadata
+            column_names = [column["name"] for column in cursor.description]
+
+        return column_names
+    except Exception as e:
+        raise e
+    finally:
+        # Close the connection
+        if conn.is_connected():
+            conn.close()
+            
 if __name__ == '__main__':
     try:
         # Example: Call the stored procedure 'GetVareinfo'
