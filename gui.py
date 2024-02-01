@@ -7,8 +7,15 @@ class SimpleGUI:
         self.master = master
         self.master.title("Lager og Logistikk System (LOLS)")
 
+        # Create Treeviews
+        self.vareliste_tree = ttk.Treeview(self.master, columns=("Varenummer", "Betegnelse", "Pris", "Antall"), show="headings")
+        self.configure_treeview(self.vareliste_tree, ("Varenummer", "Betegnelse", "Pris", "Antall"))
+
+        self.vis_ordre_tree = ttk.Treeview(self.master, columns=("Ordrenummer", "Bestillingsdato", "Sendt", "Betalt", "Kundenummer"), show="headings")
+        self.configure_treeview(self.vis_ordre_tree, ("Ordrenummer", "Bestillingsdato", "Sendt", "Betalt", "Kundenummer"))
+
         # Create buttons
-        self.btn_vareliste = tk.Button(master, text="Vareliste", command=lambda: self.show_table("GetVareinfo"))
+        self.btn_vareliste = tk.Button(master, text="Vareliste", command=self.show_vareliste)
         self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=self.show_vis_ordre)
         self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
 
@@ -17,26 +24,21 @@ class SimpleGUI:
         self.btn_vis_ordre.grid(row=0, column=1, padx=10, pady=10, sticky="w")
         self.btn_lag_faktura.grid(row=0, column=2, padx=10, pady=10, sticky="w")
 
-    def show_table(self, procedure_name):
-        # Create a Treeview widget
-        tree = ttk.Treeview(self.master, columns=("Varenummer", "Betegnelse", "Pris", "Antall"), show="headings")
-        tree.heading("Varenummer", text="Varenummer")
-        tree.heading("Betegnelse", text="Betegnelse")
-        tree.heading("Pris", text="Pris")
-        tree.heading("Antall", text="Antall")
+        # Initially hide the Treeviews
+        self.vareliste_tree.grid_forget()
+        self.vis_ordre_tree.grid_forget()
 
-        # Initially hide the Treeview
-        tree.grid_forget()
-
-        # Grid layout for Treeview with row and column configuration
+    def configure_treeview(self, tree, columns):
+        for column in columns:
+            tree.heading(column, text=column)
         tree.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
-        self.master.columnconfigure(0, weight=1)  # Allow column 0 to expand
-        self.master.rowconfigure(1, weight=1)     # Allow row 1 to expand
+        self.master.columnconfigure(0, weight=1)
+        self.master.rowconfigure(1, weight=1)
 
-        # Call the stored procedure when the button is clicked
-        self.show_vareliste(tree, procedure_name)
+    def show_vareliste(self):
+        # Hide Vis Ordre Treeview
+        self.vis_ordre_tree.grid_forget()
 
-    def show_vareliste(self, tree, procedure_name):
         # Connect to the database
         connection = connect_info()
 
@@ -47,17 +49,43 @@ class SimpleGUI:
 
                 if results is not None:
                     # Clear previous content
-                    tree.delete(*tree.get_children())
+                    self.vareliste_tree.delete(*self.vareliste_tree.get_children())
 
                     # Insert new content into the Treeview
                     for row in results:
-                        tree.insert("", "end", values=row)
+                        self.vareliste_tree.insert("", "end", values=row)
+
+                    # Show the Treeview
+                    self.vareliste_tree.grid()
 
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
 
     def show_vis_ordre(self):
-        messagebox.showinfo("Button Clicked", "Vis Ordre button clicked!")
+        # Hide Vareliste Treeview
+        self.vareliste_tree.grid_forget()
+
+        # Connect to the database
+        connection = connect_info()
+
+        if connection:
+            try:
+                # Call the stored procedure
+                results = execute_stored_procedure("GetOrdreinfo")
+
+                if results is not None:
+                    # Clear previous content
+                    self.vis_ordre_tree.delete(*self.vis_ordre_tree.get_children())
+
+                    # Insert new content into the Treeview
+                    for row in results:
+                        self.vis_ordre_tree.insert("", "end", values=row)
+
+                    # Show the Treeview
+                    self.vis_ordre_tree.grid()
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Error: {e}")
 
     def show_lag_faktura(self):
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
