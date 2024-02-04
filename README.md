@@ -18,3 +18,56 @@ database:
   host: your_db_host
   port: your_db_port
   name: your_db_name
+
+  ```
+
+# Stored Procedures
+
+This script uses a lot of stored procedures. MySQL required. Add these before use
+
+```mysql
+
+//Henter info om alle Varer
+DELIMITER //
+
+CREATE PROCEDURE GetVareinfo()
+BEGIN
+	SELECT VNr AS Varenummer, Betegnelse, Pris, Antall FROM varehusdb.vare;
+END //
+
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS GetOrdreinfo
+
+//Henter info om alle Ordre
+DELIMITER //
+
+CREATE PROCEDURE GetOrdreinfo()
+BEGIN
+	SELECT OrdreNr as 'Ordrenummer', OrdreDato AS 'Bestillingsdato', SendtDato AS 'Sendt', BetaltDato AS 'Betalt', KNr AS 'Kundenummer' FROM varehusdb.ordre;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE InspectOrder(IN order_id INT)
+BEGIN
+	SELECT 
+    ordrelinje.OrdreNr AS Ordrenummer, 
+    vare.Betegnelse, 
+    vare.VNr AS Varenummer, 
+    ordrelinje.Antall AS 'Antall Solgt', 
+    vare.Pris, 
+    SUM(ordrelinje.Antall * vare.Pris) AS 'Pris Total' 
+	FROM 
+		ordrelinje
+	INNER JOIN 
+		vare ON ordrelinje.VNr = vare.VNr 
+	WHERE 
+		OrdreNr = order_id
+	GROUP BY 
+		ordrelinje.OrdreNr, vare.Betegnelse, vare.VNr, ordrelinje.Antall, vare.Pris;
+END //
+
+DELIMITER ;
