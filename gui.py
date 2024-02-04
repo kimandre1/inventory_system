@@ -18,11 +18,13 @@ class SimpleGUI:
         self.btn_vareliste = tk.Button(master, text="Vareliste", command=self.show_vareliste)
         self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=self.show_vis_ordre)
         self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
+        self.btn_inspiser_ordre = tk.Button(master, text="Inspiser Ordre", command=self.inspect_order)
 
         # Grid layout for buttons
         self.btn_vareliste.grid(row=0, column=0, padx=10, pady=10, sticky="w")
         self.btn_vis_ordre.grid(row=0, column=1, padx=10, pady=10, sticky="w")
         self.btn_lag_faktura.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        self.btn_inspiser_ordre.grid(row=0, column=3, padx=10, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -89,6 +91,47 @@ class SimpleGUI:
 
     def show_lag_faktura(self):
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
+
+    def inspect_order(self):
+        # Check if a row is selected
+        selected_item = self.vis_ordre_tree.selection()
+    
+        if not selected_item:
+            messagebox.showinfo("Information", "Please select an order to inspect.")
+            return
+
+        item_values = self.vis_ordre_tree.item(selected_item)['values']
+        order_id = item_values[0]
+
+        # Called stored procedure using order id
+        connection = connect_info()
+
+        if connection:
+            try:
+                # Call the stored procedure
+                results = execute_stored_procedure("InspectOrder", (order_id,))
+
+                # Show the results in a new window with a Treeview
+                self.show_results_in_treeview(order_id, results)
+            except Exception as e:
+                messagebox.showerror("Error", f"Error: {e}")
+
+    def show_results_in_treeview(self, order_id, results):
+        # Create a new window to display results
+        result_window = tk.Toplevel(self.master)
+        result_window.title(f"Order Information - Order ID: {order_id}")
+
+        # Create a Treeview to display results
+        result_tree = ttk.Treeview(result_window, columns=("Ordrenummer", "Betegnelse", "Varenummer", "Antall Solgt", "Pris", "Total Pris"), show="headings")
+        self.configure_treeview(result_tree, ("Ordrenummer", "Betegnelse", "Varenummer", "Antall Solgt", "Pris", "Total Pris"))
+
+        # Insert results into the Treeview
+        for row in results:
+            result_tree.insert("", "end", values=row)
+
+        # Pack the Treeview
+        result_tree.pack()
+
 
 if __name__ == "__main__":
     root = tk.Tk()

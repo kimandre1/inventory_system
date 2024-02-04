@@ -31,7 +31,7 @@ def connect_to_database():
         'port': config["database"]["port"],
     }
 
-def execute_stored_procedure(procedure_name):
+def execute_stored_procedure(procedure_name, params=()):
     try:
         # Read database configuration from the config file using function
         config = connect_to_database()
@@ -44,7 +44,7 @@ def execute_stored_procedure(procedure_name):
 
         try:
             # Call the stored procedure specified by procedure_name
-            cursor.callproc(procedure_name)
+            cursor.callproc(procedure_name, params)
 
             # Process the results of the stored procedure
             results = []
@@ -66,11 +66,12 @@ def execute_stored_procedure(procedure_name):
             
 if __name__ == '__main__':
     try:
-        # Example: Call the stored procedure 'GetVareinfo'
-        result = execute_stored_procedure('GetVareinfo')
+        # Example: Call the stored procedure 'InspectOrder' with the argument 20505
+        result = execute_stored_procedure('InspectOrder', (20506,))
         print(result)
     except Error as e:
         print(e)
+
 
 
 
