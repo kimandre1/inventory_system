@@ -37,8 +37,6 @@ END //
 
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS GetOrdreinfo
-
 //Henter info om alle Ordre
 DELIMITER //
 
