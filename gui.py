@@ -91,13 +91,13 @@ class SimpleGUI:
 
     def show_lag_faktura(self):
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
-
+    
     def inspect_order(self):
         # Check if a row is selected
         selected_item = self.vis_ordre_tree.selection()
     
         if not selected_item:
-            messagebox.showinfo("Information", "Please select an order to inspect.")
+            messagebox.showinfo("Informasjon", "Trykk på en ordre først")
             return
 
         item_values = self.vis_ordre_tree.item(selected_item)['values']
@@ -109,29 +109,45 @@ class SimpleGUI:
         if connection:
             try:
                 # Call the stored procedure
-                results = execute_stored_procedure("InspectOrder", (order_id,))
+                results_inspect_order = execute_stored_procedure("InspectOrder", (order_id,))
 
-                # Show the results in a new window with a Treeview
-                self.show_results_in_treeview(order_id, results)
+                # Show the results in a new window with a combined Treeview and additional information
+                self.show_combined_results(order_id, results_inspect_order)
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
 
-    def show_results_in_treeview(self, order_id, results):
-        # Create a new window to display results
-        result_window = tk.Toplevel(self.master)
-        result_window.title(f"Order Information - Order ID: {order_id}")
+    def show_combined_results(self, order_id, results_inspect_order):
+        # Create a new window to display combined results
+        combined_window = tk.Toplevel(self.master)
+        combined_window.title(f"Inspiser Ordre: {order_id}")
 
-        # Create a Treeview to display results
-        result_tree = ttk.Treeview(result_window, columns=("Ordrenummer", "Betegnelse", "Varenummer", "Antall Solgt", "Pris", "Total Pris"), show="headings")
-        self.configure_treeview(result_tree, ("Ordrenummer", "Betegnelse", "Varenummer", "Antall Solgt", "Pris", "Total Pris"))
+        # Create a Treeview to display combined results
+        combined_tree = ttk.Treeview(combined_window, columns=("Ordrenummer", "Betegnelse", "Varenummer", "Antall Solgt", "Pris per enhet", "Pris Totalt"), show="headings")
+        self.configure_treeview(combined_tree, ("Ordrenummer", "Betegnelse", "Varenummer", "Antall Solgt", "Pris per enhet", "Pris Totalt"  ))
 
-        # Insert results into the Treeview
-        for row in results:
-            result_tree.insert("", "end", values=row)
+        # Insert results from InspectOrder into the Treeview
+        for row in results_inspect_order:
+            combined_tree.insert("", "end", values=row)
 
-        # Pack the Treeview
-        result_tree.pack()
+        # Pack the combined Treeview
+        combined_tree.pack()
 
+        # Fetch customer information using the stored procedure
+        customer_info = execute_stored_procedure("GetClientinfo", (order_id,))
+
+        # Check if there are any results
+        if customer_info:
+            # Extract customer information from the result
+            customer_name = f"{customer_info[0][0]} {customer_info[0][1]}"
+            customer_address = f"{customer_info[0][2]}, {customer_info[0][3]}"
+
+            # Show customer info that doesn't need repeating
+            label_customer_name = tk.Label(combined_window, text=f"Navn: {customer_name}")
+            label_customer_address = tk.Label(combined_window, text=f"Addresse: {customer_address}")
+            label_customer_name.pack(side="bottom")
+            label_customer_address.pack(side="bottom")
+        else:
+            messagebox.showwarning("Advarsel", "Kundeinfo ikke funnet!")
 
 if __name__ == "__main__":
     root = tk.Tk()
