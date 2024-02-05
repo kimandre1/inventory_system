@@ -70,6 +70,9 @@ END //
 
 DELIMITER ;
 
+
+//Henter info om kunde for inspier ordre
+
 DELIMITER //
 
 CREATE PROCEDURE GetClientinfo(IN order_id INT)
@@ -90,3 +93,13 @@ BEGIN
 END //
 
 DELIMITER ;
+
+//Henter generell kunde-informasjon
+
+CREATE PROCEDURE GetKundeInfo()
+BEGIN
+	SELECT kunde.KNr AS 'Kundenummer', kunde.Fornavn, kunde.Etternavn, kunde.Adresse, kunde.PostNr AS 'Postnummer' FROM varehusdb.kunde;
+END //
+DELIMITER ;
+
+CALL GetKundeInfo();

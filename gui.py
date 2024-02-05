@@ -14,21 +14,27 @@ class SimpleGUI:
         self.vis_ordre_tree = ttk.Treeview(self.master, columns=("Ordrenummer", "Bestillingsdato", "Sendt", "Betalt", "Kundenummer"), show="headings")
         self.configure_treeview(self.vis_ordre_tree, ("Ordrenummer", "Bestillingsdato", "Sendt", "Betalt", "Kundenummer"))
 
+        self.kundeliste_tree = ttk.Treeview(self.master, columns=("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
+        self.configure_treeview(self.kundeliste_tree, ("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
+
         # Create buttons
+        self.btn_kundeliste = tk.Button(master, text="Kundeliste", command=self.show_kundeliste)
         self.btn_vareliste = tk.Button(master, text="Vareliste", command=self.show_vareliste)
         self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=self.show_vis_ordre)
         self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
         self.btn_inspiser_ordre = tk.Button(master, text="Inspiser Ordre", command=self.inspect_order)
 
         # Grid layout for buttons
-        self.btn_vareliste.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-        self.btn_vis_ordre.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-        self.btn_lag_faktura.grid(row=0, column=2, padx=10, pady=10, sticky="w")
-        self.btn_inspiser_ordre.grid(row=0, column=3, padx=10, pady=10, sticky="w")
+        self.btn_kundeliste.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        self.btn_vareliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+        self.btn_vis_ordre.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        self.btn_lag_faktura.grid(row=0, column=3, padx=10, pady=10, sticky="w")
+        self.btn_inspiser_ordre.grid(row=0, column=4, padx=10, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
         self.vis_ordre_tree.grid_forget()
+        self.kundeliste_tree.grid_forget()
 
     def configure_treeview(self, tree, columns):
         for column in columns:
@@ -88,7 +94,33 @@ class SimpleGUI:
 
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
+    
+    def show_kundeliste(self):
+        # Hide Vareliste Treeview
+        self.kundeliste_tree.grid_forget()
 
+        # Connect to the database
+        connection = connect_info()
+
+        if connection:
+            try:
+                # Call the stored procedure
+                results = execute_stored_procedure("GetKundeInfo")
+
+                if results is not None:
+                    # Clear previous content
+                    self.kundeliste_tree.delete(*self.kundeliste_tree.get_children())
+
+                    # Insert new content into the Treeview
+                    for row in results:
+                        self.kundeliste_tree.insert("", "end", values=row)
+
+                    # Show the Treeview
+                    self.kundeliste_tree.grid()
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Error: {e}")
+    
     def show_lag_faktura(self):
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
     
