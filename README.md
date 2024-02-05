@@ -69,3 +69,24 @@ BEGIN
 END //
 
 DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE GetClientinfo(IN order_id INT)
+BEGIN
+	SELECT
+		kunde.Fornavn,
+		kunde.Etternavn,
+		kunde.Adresse,
+		kunde.PostNr AS Postnummer
+	FROM
+		kunde
+	INNER JOIN
+		ordre ON kunde.KNr = ordre.KNr
+	WHERE 
+		OrdreNr = order_id
+	GROUP BY
+		kunde.Fornavn, kunde.Etternavn, kunde.Adresse, kunde.PostNr;
+END //
+
+DELIMITER ;
