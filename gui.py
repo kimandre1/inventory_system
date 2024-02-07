@@ -14,7 +14,7 @@ class SimpleGUI:
         self.vis_ordre_tree = ttk.Treeview(self.master, columns=("Ordrenummer", "Bestillingsdato", "Sendt", "Betalt", "Kundenummer"), show="headings")
         self.configure_treeview(self.vis_ordre_tree, ("Ordrenummer", "Bestillingsdato", "Sendt", "Betalt", "Kundenummer"))
 
-        self.kundeliste_tree = ttk.Treeview(self.master, columns=("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
+        self.kundeliste_tree = ttk.Treeview(self.master, columns=("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"), show="headings")
         self.configure_treeview(self.kundeliste_tree, ("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
 
         # Create buttons
@@ -44,8 +44,9 @@ class SimpleGUI:
         self.master.rowconfigure(1, weight=1)
 
     def show_vareliste(self):
-        # Hide Vis Ordre Treeview
+        # Hide other treeviews
         self.vis_ordre_tree.grid_forget()
+        self.kundeliste_tree.grid_forget()
 
         # Connect to the database
         connection = connect_info()
@@ -72,6 +73,7 @@ class SimpleGUI:
     def show_vis_ordre(self):
         # Hide Vareliste Treeview
         self.vareliste_tree.grid_forget()
+        self.kundeliste_tree.grid_forget()
 
         # Connect to the database
         connection = connect_info()
