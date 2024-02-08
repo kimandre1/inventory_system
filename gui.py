@@ -39,12 +39,12 @@ class SimpleGUI:
     def configure_treeview(self, tree, columns):
         for column in columns:
             tree.heading(column, text=column)
-        tree.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+        tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(1, weight=1)
 
     def show_vareliste(self):
-        # Hide other treeviews
+        # Hide Vis Ordre Treeview
         self.vis_ordre_tree.grid_forget()
         self.kundeliste_tree.grid_forget()
 
@@ -100,6 +100,8 @@ class SimpleGUI:
     def show_kundeliste(self):
         # Hide Vareliste Treeview
         self.kundeliste_tree.grid_forget()
+        self.vis_ordre_tree.grid_forget()
+        self.vareliste_tree.grid_forget()
 
         # Connect to the database
         connection = connect_info()
