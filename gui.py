@@ -23,13 +23,15 @@ class SimpleGUI:
         self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=self.show_vis_ordre)
         self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
         self.btn_inspiser_ordre = tk.Button(master, text="Inspiser Ordre", command=self.inspect_order)
+        self.btn_addkunde = tk.Button(master, text="Legg til ny kunde", command=self.add_user_form)
 
         # Grid layout for buttons
-        self.btn_kundeliste.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-        self.btn_vareliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-        self.btn_vis_ordre.grid(row=0, column=2, padx=10, pady=10, sticky="w")
-        self.btn_lag_faktura.grid(row=0, column=3, padx=10, pady=10, sticky="w")
-        self.btn_inspiser_ordre.grid(row=0, column=4, padx=10, pady=10, sticky="w")
+        self.btn_kundeliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+        self.btn_addkunde.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        self.btn_vareliste.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        self.btn_vis_ordre.grid(row=0, column=3, padx=10, pady=10, sticky="w")
+        self.btn_lag_faktura.grid(row=0, column=4, padx=10, pady=10, sticky="w")
+        self.btn_inspiser_ordre.grid(row=0, column=5, padx=10, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -127,6 +129,31 @@ class SimpleGUI:
     
     def show_lag_faktura(self):
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
+
+    def add_user_form(self):
+        window = tk.Toplevel(self.master)
+        window.title("Legg til bruker")
+        first_name_label = tk.Label(window, text="Fornavn")
+        first_name_label.pack()
+        first_name_input = tk.Entry(window)
+        first_name_input.pack()
+        last_name_label = tk.Label(window, text="Etternavn")
+        last_name_label.pack()
+        last_name_input = tk.Entry(window)
+        last_name_input.pack()
+        address_label = tk.Label(window, text="Addresse")
+        address_label.pack()
+        address_label_input = tk.Entry(window)
+        address_label_input.pack()
+        postnr_label = tk.Label(window, text="Postnummer")
+        postnr_label.pack()
+        postnr_label_input = tk.Entry(window)
+        postnr_label_input.pack()
+        btn_register = tk.Button(window, text="Registrer ny bruker", command=self.register_user)
+        btn_register.pack()
+    
+    def register_user(self):
+        messagebox.showinfo("Bruker Registrert", "Brukeren er registrert!")
     
     def inspect_order(self):
         # Check if a row is selected
