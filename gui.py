@@ -18,9 +18,9 @@ class SimpleGUI:
         self.configure_treeview(self.kundeliste_tree, ("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
 
         # Create buttons
-        self.btn_kundeliste = tk.Button(master, text="Kundeliste", command=self.show_kundeliste)
-        self.btn_vareliste = tk.Button(master, text="Vareliste", command=self.show_vareliste)
-        self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=self.show_vis_ordre)
+        self.btn_kundeliste = tk.Button(master, text="Kundeliste", command=lambda: self.show_vareliste("GetKundeInfo", self.kundeliste_tree))
+        self.btn_vareliste = tk.Button(master, text="Vareliste", command=lambda: self.show_vareliste("GetVareinfo", self.vareliste_tree))
+        self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=lambda: self.show_vareliste("GetOrdreinfo", self.vis_ordre_tree))
         self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
         self.btn_inspiser_ordre = tk.Button(master, text="Inspiser Ordre", command=self.inspect_order)
         self.btn_addkunde = tk.Button(master, text="Legg til ny kunde", command=self.add_user_form)
@@ -45,64 +45,10 @@ class SimpleGUI:
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(1, weight=1)
 
-    def show_vareliste(self):
+    def show_vareliste(self, procedure, tree):
         # Hide Vis Ordre Treeview
         self.vis_ordre_tree.grid_forget()
         self.kundeliste_tree.grid_forget()
-
-        # Connect to the database
-        connection = connect_info()
-
-        if connection:
-            try:
-                # Call the stored procedure
-                results = execute_stored_procedure("GetVareinfo")
-
-                if results is not None:
-                    # Clear previous content
-                    self.vareliste_tree.delete(*self.vareliste_tree.get_children())
-
-                    # Insert new content into the Treeview
-                    for row in results:
-                        self.vareliste_tree.insert("", "end", values=row)
-
-                    # Show the Treeview
-                    self.vareliste_tree.grid()
-
-            except Exception as e:
-                messagebox.showerror("Error", f"Error: {e}")
-
-    def show_vis_ordre(self):
-        # Hide Vareliste Treeview
-        self.vareliste_tree.grid_forget()
-        self.kundeliste_tree.grid_forget()
-
-        # Connect to the database
-        connection = connect_info()
-
-        if connection:
-            try:
-                # Call the stored procedure
-                results = execute_stored_procedure("GetOrdreinfo")
-
-                if results is not None:
-                    # Clear previous content
-                    self.vis_ordre_tree.delete(*self.vis_ordre_tree.get_children())
-
-                    # Insert new content into the Treeview
-                    for row in results:
-                        self.vis_ordre_tree.insert("", "end", values=row)
-
-                    # Show the Treeview
-                    self.vis_ordre_tree.grid()
-
-            except Exception as e:
-                messagebox.showerror("Error", f"Error: {e}")
-    
-    def show_kundeliste(self):
-        # Hide Vareliste Treeview
-        self.kundeliste_tree.grid_forget()
-        self.vis_ordre_tree.grid_forget()
         self.vareliste_tree.grid_forget()
 
         # Connect to the database
@@ -111,18 +57,18 @@ class SimpleGUI:
         if connection:
             try:
                 # Call the stored procedure
-                results = execute_stored_procedure("GetKundeInfo")
+                results = execute_stored_procedure(procedure)
 
                 if results is not None:
                     # Clear previous content
-                    self.kundeliste_tree.delete(*self.kundeliste_tree.get_children())
+                    tree.delete(*tree.get_children())
 
                     # Insert new content into the Treeview
                     for row in results:
-                        self.kundeliste_tree.insert("", "end", values=row)
+                        tree.insert("", "end", values=row)
 
                     # Show the Treeview
-                    self.kundeliste_tree.grid()
+                    tree.grid()
 
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
