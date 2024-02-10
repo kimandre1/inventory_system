@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from database import connect_info, execute_stored_procedure
+from database import connect_info, execute_stored_procedure, add_user
 
 class SimpleGUI:
     def __init__(self, master):
@@ -26,12 +26,12 @@ class SimpleGUI:
         self.btn_addkunde = tk.Button(master, text="Legg til ny kunde", command=self.add_user_form)
 
         # Grid layout for buttons
-        self.btn_kundeliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-        self.btn_addkunde.grid(row=0, column=2, padx=10, pady=10, sticky="w")
-        self.btn_vareliste.grid(row=0, column=2, padx=10, pady=10, sticky="w")
-        self.btn_vis_ordre.grid(row=0, column=3, padx=10, pady=10, sticky="w")
-        self.btn_lag_faktura.grid(row=0, column=4, padx=10, pady=10, sticky="w")
-        self.btn_inspiser_ordre.grid(row=0, column=5, padx=10, pady=10, sticky="w")
+        self.btn_kundeliste.grid(row=0, column=0, pady=10, sticky="w")
+        self.btn_addkunde.grid(row=0, column=1, pady=10, sticky="w")
+        self.btn_vareliste.grid(row=0, column=2, pady=10, sticky="w")
+        self.btn_vis_ordre.grid(row=0, column=3, pady=10, sticky="w")
+        self.btn_lag_faktura.grid(row=0, column=4, pady=10, sticky="w")
+        self.btn_inspiser_ordre.grid(row=0, column=5, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -41,7 +41,7 @@ class SimpleGUI:
     def configure_treeview(self, tree, columns):
         for column in columns:
             tree.heading(column, text=column)
-        tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
+        tree.grid(row=1, column=0, columnspan=6, padx=10, pady=10, sticky="w")
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(1, weight=1)
 
@@ -135,25 +135,47 @@ class SimpleGUI:
         window.title("Legg til bruker")
         first_name_label = tk.Label(window, text="Fornavn")
         first_name_label.pack()
-        first_name_input = tk.Entry(window)
-        first_name_input.pack()
+        self.first_name_input = tk.Entry(window)
+        self.first_name_input.pack()
         last_name_label = tk.Label(window, text="Etternavn")
         last_name_label.pack()
-        last_name_input = tk.Entry(window)
-        last_name_input.pack()
+        self.last_name_input = tk.Entry(window)
+        self.last_name_input.pack()
         address_label = tk.Label(window, text="Addresse")
         address_label.pack()
-        address_label_input = tk.Entry(window)
-        address_label_input.pack()
+        self.address_label_input = tk.Entry(window)
+        self.address_label_input.pack()
         postnr_label = tk.Label(window, text="Postnummer")
         postnr_label.pack()
-        postnr_label_input = tk.Entry(window)
-        postnr_label_input.pack()
+        self.postnr_label_input = tk.Entry(window)
+        self.postnr_label_input.pack()
+        poststed_label = tk.Label(window, text="Poststed")
+        poststed_label.pack()
+        self.poststed_input = tk.Entry(window)
+        self.poststed_input.pack()
         btn_register = tk.Button(window, text="Registrer ny bruker", command=self.register_user)
         btn_register.pack()
     
     def register_user(self):
-        messagebox.showinfo("Bruker Registrert", "Brukeren er registrert!")
+        firstname = self.first_name_input.get()
+        lastname = self.last_name_input.get()
+        address = self.address_label_input.get()
+        postnr = self.postnr_label_input.get()
+        poststed = self.postnr_label_input.get()
+
+        # Connect to database
+        connection = connect_info()
+
+        if connection:
+            try:
+                # Use the return value of add_user to check if the operation was successful
+                success = add_user(firstname, lastname, address, postnr, poststed)
+            
+                if success:
+                    messagebox.showinfo("Bruker Registrert", "Brukeren er registrert!")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error: {e}")
+
     
     def inspect_order(self):
         # Check if a row is selected
