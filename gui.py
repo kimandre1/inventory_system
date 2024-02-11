@@ -1,11 +1,15 @@
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import ttk, messagebox
+from customtkinter import set_appearance_mode
 from database import connect_info, execute_stored_procedure, add_user
 
 class SimpleGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("Lager og Logistikk System (LOLS)")
+        set_appearance_mode("Dark")
+        print(ctk.get_appearance_mode())
 
         # Create Treeviews
         self.vareliste_tree = ttk.Treeview(self.master, columns=("Varenummer", "Betegnelse", "Pris", "Antall"), show="headings")
@@ -18,20 +22,20 @@ class SimpleGUI:
         self.configure_treeview(self.kundeliste_tree, ("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
 
         # Create buttons
-        self.btn_kundeliste = tk.Button(master, text="Kundeliste", command=lambda: self.show_vareliste("GetKundeInfo", self.kundeliste_tree))
-        self.btn_vareliste = tk.Button(master, text="Vareliste", command=lambda: self.show_vareliste("GetVareinfo", self.vareliste_tree))
-        self.btn_vis_ordre = tk.Button(master, text="Vis Ordre", command=lambda: self.show_vareliste("GetOrdreinfo", self.vis_ordre_tree))
-        self.btn_lag_faktura = tk.Button(master, text="Lag Faktura", command=self.show_lag_faktura)
-        self.btn_inspiser_ordre = tk.Button(master, text="Inspiser Ordre", command=self.inspect_order)
-        self.btn_addkunde = tk.Button(master, text="Legg til ny kunde", command=self.add_user_form)
+        self.btn_kundeliste = ctk.CTkButton(master, text="Kundeliste", command=lambda: self.show_vareliste("GetKundeInfo", self.kundeliste_tree))
+        self.btn_vareliste = ctk.CTkButton(master, text="Vareliste", command=lambda: self.show_vareliste("GetVareinfo", self.vareliste_tree))
+        self.btn_vis_ordre = ctk.CTkButton(master, text="Vis Ordre", command=lambda: self.show_vareliste("GetOrdreinfo", self.vis_ordre_tree))
+        self.btn_lag_faktura = ctk.CTkButton(master, text="Lag Faktura", command=self.show_lag_faktura)
+        self.btn_inspiser_ordre = ctk.CTkButton(master, text="Inspiser Ordre", command=self.inspect_order)
+        self.btn_addkunde = ctk.CTkButton(master, text="Legg til ny kunde", command=self.add_user_form)
 
         # Grid layout for buttons
-        self.btn_kundeliste.grid(row=0, column=0, pady=10, sticky="w")
-        self.btn_addkunde.grid(row=0, column=1, pady=10, sticky="w")
-        self.btn_vareliste.grid(row=0, column=2, pady=10, sticky="w")
-        self.btn_vis_ordre.grid(row=0, column=3, pady=10, sticky="w")
-        self.btn_lag_faktura.grid(row=0, column=4, pady=10, sticky="w")
-        self.btn_inspiser_ordre.grid(row=0, column=5, pady=10, sticky="w")
+        self.btn_kundeliste.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+        self.btn_addkunde.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+        self.btn_vareliste.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        self.btn_vis_ordre.grid(row=0, column=3, padx=10, pady=10, sticky="w")
+        self.btn_lag_faktura.grid(row=0, column=4, padx=10, pady=10, sticky="w")
+        self.btn_inspiser_ordre.grid(row=0, column=5, padx=10, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -163,6 +167,12 @@ class SimpleGUI:
         # Pack the combined Treeview
         combined_tree.pack()
 
+        # Calculate the total sum of order
+        total_sum = 0
+        for item_id in combined_tree.get_children():
+            price_total = float(combined_tree.item(item_id, "values")[5])
+            total_sum += price_total
+
         # Fetch customer information using the stored procedure
         customer_info = execute_stored_procedure("GetClientinfo", (order_id,))
 
@@ -173,10 +183,12 @@ class SimpleGUI:
             customer_address = f"{customer_info[0][2]}, {customer_info[0][3]}"
 
             # Show customer info that doesn't need repeating
-            label_customer_name = tk.Label(combined_window, text=f"Navn: {customer_name}")
-            label_customer_address = tk.Label(combined_window, text=f"Addresse: {customer_address}")
-            label_customer_name.pack(side="bottom")
-            label_customer_address.pack(side="bottom")
+            label_customer_name = tk.Label(combined_window, text=f"Navn: {customer_name} ")
+            label_customer_address = tk.Label(combined_window, text=f" Addresse: {customer_address}")
+            label_total_price = tk.Label(combined_window, text=f"Totalt: {total_sum} kr" )
+            label_customer_name.pack(side="left")
+            label_customer_address.pack(side="left")
+            label_total_price.pack(side="right")
         else:
             messagebox.showwarning("Advarsel", "Kundeinfo ikke funnet!")
 
