@@ -8,8 +8,7 @@ class SimpleGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("Lager og Logistikk System (LOLS)")
-        set_appearance_mode("Dark")
-        print(ctk.get_appearance_mode())
+
 
         # Create Treeviews
         self.vareliste_tree = ttk.Treeview(self.master, columns=("Varenummer", "Betegnelse", "Pris", "Antall"), show="headings")
@@ -22,20 +21,19 @@ class SimpleGUI:
         self.configure_treeview(self.kundeliste_tree, ("Kundenummer", "Fornavn", "Etternavn", "Addresse", "Postnummer"))
 
         # Create buttons
-        self.btn_kundeliste = ctk.CTkButton(master, text="Kundeliste", command=lambda: self.show_vareliste("GetKundeInfo", self.kundeliste_tree))
-        self.btn_vareliste = ctk.CTkButton(master, text="Vareliste", command=lambda: self.show_vareliste("GetVareinfo", self.vareliste_tree))
-        self.btn_vis_ordre = ctk.CTkButton(master, text="Vis Ordre", command=lambda: self.show_vareliste("GetOrdreinfo", self.vis_ordre_tree))
+        self.btn_kundeliste = ctk.CTkButton(master, text="Kundeliste", command=lambda: self.display_grid("GetKundeInfo", self.kundeliste_tree))
+        self.btn_vareliste = ctk.CTkButton(master, text="Vareliste", command=lambda: self.display_grid("GetVareinfo", self.vareliste_tree))
+        self.btn_vis_ordre = ctk.CTkButton(master, text="Vis Ordre", command=lambda: self.display_grid("GetOrdreinfo", self.vis_ordre_tree))
         self.btn_lag_faktura = ctk.CTkButton(master, text="Lag Faktura", command=self.show_lag_faktura)
-        self.btn_inspiser_ordre = ctk.CTkButton(master, text="Inspiser Ordre", command=self.inspect_order)
         self.btn_addkunde = ctk.CTkButton(master, text="Legg til ny kunde", command=self.add_user_form)
+        self.btn_context = None
 
         # Grid layout for buttons
-        self.btn_kundeliste.grid(row=0, column=0, padx=10, pady=10, sticky="w")
-        self.btn_addkunde.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-        self.btn_vareliste.grid(row=0, column=2, padx=10, pady=10, sticky="w")
-        self.btn_vis_ordre.grid(row=0, column=3, padx=10, pady=10, sticky="w")
-        self.btn_lag_faktura.grid(row=0, column=4, padx=10, pady=10, sticky="w")
-        self.btn_inspiser_ordre.grid(row=0, column=5, padx=10, pady=10, sticky="w")
+        self.btn_kundeliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+        self.btn_addkunde.grid(row=0, column=2, padx=10, pady=10, sticky="w")
+        self.btn_vareliste.grid(row=0, column=3, padx=10, pady=10, sticky="w")
+        self.btn_vis_ordre.grid(row=0, column=4, padx=10, pady=10, sticky="w")
+        self.btn_lag_faktura.grid(row=0, column=5, padx=10, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -45,12 +43,11 @@ class SimpleGUI:
     def configure_treeview(self, tree, columns):
         for column in columns:
             tree.heading(column, text=column)
-        tree.grid(row=1, column=0, columnspan=6, padx=10, pady=10, sticky="w")
         self.master.columnconfigure(0, weight=1)
         self.master.rowconfigure(1, weight=1)
 
-    def show_vareliste(self, procedure, tree):
-        # Hide Vis Ordre Treeview
+    def display_grid(self, procedure, tree):
+        # Hide treeviews and buttons
         self.vis_ordre_tree.grid_forget()
         self.kundeliste_tree.grid_forget()
         self.vareliste_tree.grid_forget()
@@ -72,8 +69,23 @@ class SimpleGUI:
                         tree.insert("", "end", values=row)
 
                     # Show the Treeview
-                    tree.grid()
+                    tree.grid(row=1, column=1, columnspan=6, padx=10, pady=10)
+                    
+                    #Show extra buttons depending on the method
+                    if procedure == "GetOrdreinfo":
+                        buttontext = "Inspiser Ordre"
+                        method = self.inspect_order
+                    
+                    elif procedure == "GetKundeInfo":
+                        buttontext = "Slett Kunde"
+                        method = self.delete_client
 
+                    elif self.btn_context is not None:
+                        self.btn_context.grid_forget()
+                    
+                    self.btn_context = ctk.CTkButton(self.master, text=buttontext, command=method)
+                    self.btn_context.grid(row=2, column=5, padx=10, pady=10, sticky="w")
+                    
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
     
@@ -125,7 +137,9 @@ class SimpleGUI:
                     messagebox.showinfo("Bruker Registrert", "Brukeren er registrert!")
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
-
+    
+    def delete_client(self):
+        messagebox.showinfo("Informasjon", "Trykk på en kunde først")
     
     def inspect_order(self):
         # Check if a row is selected
