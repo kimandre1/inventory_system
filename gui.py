@@ -73,22 +73,22 @@ class SimpleGUI:
                     
                     #Show extra buttons depending on the method
                     if procedure == "GetOrdreinfo":
-                        buttontext = "Inspiser Ordre"
-                        method = self.inspect_order
+                        self.button_context(self, "Inspiser Ordre", self.inspect_order, procedure)
                     
                     elif procedure == "GetKundeInfo":
-                        buttontext = "Slett Kunde"
-                        method = self.delete_client
+                        self.button_context(self, "Slett Kunde", self.delete_client, procedure)
 
-                    elif self.btn_context is not None:
-                        self.btn_context.grid_forget()
-                    
-                    self.btn_context = ctk.CTkButton(self.master, text=buttontext, command=method)
-                    self.btn_context.grid(row=2, column=5, padx=10, pady=10, sticky="w")
+                    elif procedure not in "GetOrdreinfo" or "GetKundeInfo":
+                        self.button_context(self, "empty", "empty", procedure)
+                        self.btn_context.grid_forget()       
                     
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
     
+    def button_context(btn_context, self, buttontext, method, procedure):
+        self.btn_context = ctk.CTkButton(self.master, text=buttontext, command=method)
+        self.btn_context.grid(row=2, column=5, padx=10, pady=10, sticky="w")
+
     def show_lag_faktura(self):
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
 
@@ -139,7 +139,27 @@ class SimpleGUI:
                 messagebox.showerror("Error", f"Error: {e}")
     
     def delete_client(self):
-        messagebox.showinfo("Informasjon", "Trykk på en kunde først")
+        #Check row selection
+        selected_client = self.kundeliste_tree.selection()
+
+        if not selected_client:
+            messagebox.showinfo("Informasjon", "Velg en kunde først")
+            return
+        
+        client_value = self.kundeliste_tree.item(selected_client)['values']
+        client_id = client_value[0]
+
+        # Call stored procedure
+        connection = connect_info()
+
+        if connection:
+            try:
+                # Call stored procedure using client id
+                execute_stored_procedure("DeleteClient", (client_id,))
+                messagebox.showinfo("Kunde slettet", f"Kunde med Kundenummer: {client_id} er slettet.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error: {e}")
+
     
     def inspect_order(self):
         # Check if a row is selected

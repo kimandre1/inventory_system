@@ -55,6 +55,7 @@ def execute_stored_procedure(procedure_name, params=()):
 
         finally:
             # Close the cursor
+            conn.commit()
             cursor.close()
 
     except Error as e:
@@ -101,4 +102,3 @@ if __name__ == '__main__':
         print(result)
     except Error as e:
         print(e)
-
