@@ -2,7 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 from customtkinter import set_appearance_mode
-from database import connect_info, execute_stored_procedure, add_user
+from database import connect_info, execute_stored_procedure
 
 class SimpleGUI:
     def __init__(self, master):
@@ -93,29 +93,29 @@ class SimpleGUI:
         messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
 
     def add_user_form(self):
-        window = tk.Toplevel(self.master)
-        window.title("Legg til bruker")
-        first_name_label = tk.Label(window, text="Fornavn")
+        self.window = tk.Toplevel(self.master)
+        self.window.title("Legg til bruker")
+        first_name_label = tk.Label(self.window, text="Fornavn")
         first_name_label.pack()
-        self.first_name_input = tk.Entry(window)
+        self.first_name_input = tk.Entry(self.window)
         self.first_name_input.pack()
-        last_name_label = tk.Label(window, text="Etternavn")
+        last_name_label = tk.Label(self.window, text="Etternavn")
         last_name_label.pack()
-        self.last_name_input = tk.Entry(window)
+        self.last_name_input = tk.Entry(self.window)
         self.last_name_input.pack()
-        address_label = tk.Label(window, text="Addresse")
+        address_label = tk.Label(self.window, text="Addresse")
         address_label.pack()
-        self.address_label_input = tk.Entry(window)
+        self.address_label_input = tk.Entry(self.window)
         self.address_label_input.pack()
-        postnr_label = tk.Label(window, text="Postnummer")
+        postnr_label = tk.Label(self.window, text="Postnummer")
         postnr_label.pack()
-        self.postnr_label_input = tk.Entry(window)
+        self.postnr_label_input = tk.Entry(self.window)
         self.postnr_label_input.pack()
-        poststed_label = tk.Label(window, text="Poststed")
+        poststed_label = tk.Label(self.window, text="Poststed")
         poststed_label.pack()
-        self.poststed_input = tk.Entry(window)
+        self.poststed_input = tk.Entry(self.window)
         self.poststed_input.pack()
-        btn_register = tk.Button(window, text="Registrer ny bruker", command=self.register_user)
+        btn_register = tk.Button(self.window, text="Registrer ny bruker", command=self.register_user)
         btn_register.pack()
     
     def register_user(self):
@@ -131,13 +131,15 @@ class SimpleGUI:
         if connection:
             try:
                 # Use the return value of add_user to check if the operation was successful
-                success = add_user(firstname, lastname, address, postnr, poststed)
-            
-                if success:
-                    messagebox.showinfo("Bruker Registrert", "Brukeren er registrert!")
+                execute_stored_procedure("AddUser", (firstname, lastname, address, postnr, poststed))
+           
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
-    
+
+            finally:
+                self.window.destroy()
+                messagebox.showinfo("Bruker Registrert", "Brukeren er registrert!")
+                self.display_grid("GetKundeInfo", self.kundeliste_tree)
     def delete_client(self):
         #Check row selection
         selected_client = self.kundeliste_tree.selection()
@@ -157,6 +159,8 @@ class SimpleGUI:
                 # Call stored procedure using client id
                 execute_stored_procedure("DeleteClient", (client_id,))
                 messagebox.showinfo("Kunde slettet", f"Kunde med Kundenummer: {client_id} er slettet.")
+                self.display_grid("GetKundeInfo", self.kundeliste_tree)
+
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
 

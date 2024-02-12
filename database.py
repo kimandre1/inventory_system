@@ -64,36 +64,6 @@ def execute_stored_procedure(procedure_name, params=()):
         # Close the connection
         if conn.is_connected():
             conn.close()
-
-def add_user(firstname, lastname, address, postnr, poststed):
-    try:
-        # Read database configuration from the config file using function
-        config = connect_to_database()
-
-        # Establish a connection to the MySQL database
-        conn = MySQLConnection(**config)
-
-        # Create a cursor to execute SQL queries
-        cursor = conn.cursor()
-
-        # Call the stored procedure AddUser
-        cursor.callproc("AddUser", (firstname, lastname, address, postnr, poststed))
-
-        # Commit the changes to make them permanent
-        conn.commit()
-
-        # If the execution reaches this point, the operation was successful
-        return True
-    except Error as error:
-        print(error)
-        # If an error occurs, you might want to handle it here or raise an exception
-        raise error
-    finally:
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
-
-
             
 if __name__ == '__main__':
     try:
