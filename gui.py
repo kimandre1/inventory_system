@@ -1,8 +1,8 @@
 import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk, messagebox
-from customtkinter import set_appearance_mode
 from database import connect_info, execute_stored_procedure
+from billing import create_pdf
 
 class SimpleGUI:
     def __init__(self, master):
@@ -23,17 +23,16 @@ class SimpleGUI:
         # Create buttons
         self.btn_kundeliste = ctk.CTkButton(master, text="Kundeliste", command=lambda: self.display_grid("GetKundeInfo", self.kundeliste_tree))
         self.btn_vareliste = ctk.CTkButton(master, text="Vareliste", command=lambda: self.display_grid("GetVareinfo", self.vareliste_tree))
-        self.btn_vis_ordre = ctk.CTkButton(master, text="Vis Ordre", command=lambda: self.display_grid("GetOrdreinfo", self.vis_ordre_tree))
-        self.btn_lag_faktura = ctk.CTkButton(master, text="Lag Faktura", command=self.show_lag_faktura)
+        self.btn_vis_ordre = ctk.CTkButton(master, text="Ordreliste", command=lambda: self.display_grid("GetOrdreinfo", self.vis_ordre_tree))
         self.btn_addkunde = ctk.CTkButton(master, text="Legg til ny kunde", command=self.add_user_form)
         self.btn_context = None
+        self.btn_lag_faktura = None
 
         # Grid layout for buttons
         self.btn_kundeliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
         self.btn_addkunde.grid(row=0, column=2, padx=10, pady=10, sticky="w")
         self.btn_vareliste.grid(row=0, column=3, padx=10, pady=10, sticky="w")
         self.btn_vis_ordre.grid(row=0, column=4, padx=10, pady=10, sticky="w")
-        self.btn_lag_faktura.grid(row=0, column=5, padx=10, pady=10, sticky="w")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -88,9 +87,6 @@ class SimpleGUI:
     def button_context(btn_context, self, buttontext, method, procedure):
         self.btn_context = ctk.CTkButton(self.master, text=buttontext, command=method)
         self.btn_context.grid(row=2, column=5, padx=10, pady=10, sticky="w")
-
-    def show_lag_faktura(self):
-        messagebox.showinfo("Button Clicked", "Lag Faktura button clicked!")
 
     def add_user_form(self):
         self.window = tk.Toplevel(self.master)
@@ -226,9 +222,38 @@ class SimpleGUI:
             label_total_price = tk.Label(combined_window, text=f"Totalt: {total_sum} kr" )
             label_customer_name.pack(side="left")
             label_customer_address.pack(side="left")
+
+
+            #Add billing button
+            self.btn_lag_faktura = ctk.CTkButton(combined_window, text="Lag Faktura", command=lambda: self.lag_faktura(order_id))
+            self.btn_lag_faktura.pack(side="right")
             label_total_price.pack(side="right")
         else:
             messagebox.showwarning("Advarsel", "Kundeinfo ikke funnet!")
+    
+    def lag_faktura(self, order_id):
+        # Called stored procedure using order id
+        connection = connect_info()
+
+        if connection:
+            try:
+                # Call the stored procedure
+                results_inspect_order = execute_stored_procedure("InspectOrder", (order_id,))
+
+                # Fetch customer information using the stored procedure
+                customer_info = execute_stored_procedure("GetClientinfo", (order_id,))
+
+                # Calculate the total sum of order
+                total_sum = sum(float(row[5]) for row in results_inspect_order)
+
+                if customer_info:
+                    create_pdf(order_id, results_inspect_order, customer_info, total_sum)
+                else:
+                    messagebox.showwarning("Advarsel", "Kundeinfo ikke funnet!")
+
+            except Exception as e:
+                messagebox.showerror("Error", f"Error: {e}")
+
 
 if __name__ == "__main__":
     root = tk.Tk()
