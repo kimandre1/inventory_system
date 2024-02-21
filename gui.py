@@ -251,11 +251,15 @@ class SimpleGUI:
                 # Fetch customer information using the stored procedure
                 customer_info = execute_stored_procedure("GetClientinfo", (order_id,))
 
+                # Update billing table and fetch billingnr
+                item_value = execute_stored_procedure("AddBill", (order_id,))
+                billing_nr = item_value[0][0
+                                           ]
                 # Calculate the total sum of order
                 total_sum = sum(float(row[5]) for row in results_inspect_order)
 
                 if customer_info:
-                    create_pdf(order_id, results_inspect_order, customer_info, total_sum)
+                    create_pdf(order_id, billing_nr, results_inspect_order, customer_info, total_sum)
                 else:
                     messagebox.showwarning("Advarsel", "Kundeinfo ikke funnet!")
 
