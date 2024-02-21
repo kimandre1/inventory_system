@@ -67,7 +67,7 @@ def execute_stored_procedure(procedure_name, params=()):
             
 if __name__ == '__main__':
     try:
-        # Example: Call the stored procedure 'InspectOrder' with the argument 20505
+        # Example statement
         result = execute_stored_procedure('Adduser', ('Lol', 'lollesen', 'Lollegata 24', 1779))
         print(result)
     except Error as e:
