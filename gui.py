@@ -71,22 +71,26 @@ class SimpleGUI:
                     for row in results:
                         tree.insert("", "end", values=row)
 
-                    # Show the Treeview
-                    tree.grid(row=1, column=1, columnspan=6, padx=10, pady=10)
-                    
-                    #Show extra buttons depending on the method
+                    # Set row weight for the row containing the Treeview
+                    self.master.grid_rowconfigure(1, weight=1)
+
+                    # Show the Treeview and make it expand in all directions
+                    tree.grid(row=1, column=1, columnspan=4, padx=10, pady=10, sticky="nsew")
+                
+                    # Show extra buttons depending on the method
                     if procedure == "GetOrdreinfo":
                         self.button_context(self, "Inspiser Ordre", self.inspect_order, procedure)
-                    
+                
                     elif procedure == "GetKundeInfo":
                         self.button_context(self, "Slett Kunde", self.delete_client, procedure)
 
-                    elif procedure not in "GetOrdreinfo" or "GetKundeInfo":
+                    elif procedure not in ["GetOrdreinfo", "GetKundeInfo"]:
                         self.button_context(self, "empty", "empty", procedure)
                         self.btn_context.grid_forget()       
-                    
+                
             except Exception as e:
                 messagebox.showerror("Error", f"Error: {e}")
+
     
     def button_context(btn_context, self, buttontext, method, procedure):
         self.btn_context = ctk.CTkButton(self.master, text=buttontext, command=method)
