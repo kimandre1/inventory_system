@@ -8,6 +8,11 @@ class SimpleGUI:
     def __init__(self, master):
         self.master = master
         self.master.title("Lager og Logistikk System (LOLS)")
+        self.master.columnconfigure(1, weight=1)
+        self.master.columnconfigure(2, weight=1)
+        self.master.columnconfigure(3, weight=1)
+        self.master.columnconfigure(4, weight=1)
+
 
 
         # Create Treeviews
@@ -29,10 +34,10 @@ class SimpleGUI:
         self.btn_lag_faktura = None
 
         # Grid layout for buttons
-        self.btn_kundeliste.grid(row=0, column=1, padx=10, pady=10, sticky="w")
-        self.btn_addkunde.grid(row=0, column=2, padx=10, pady=10, sticky="w")
-        self.btn_vareliste.grid(row=0, column=3, padx=10, pady=10, sticky="w")
-        self.btn_vis_ordre.grid(row=0, column=4, padx=10, pady=10, sticky="w")
+        self.btn_kundeliste.grid(row=0, column=1, padx=10, pady=10, sticky="nsew")
+        self.btn_addkunde.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
+        self.btn_vareliste.grid(row=0, column=3, padx=10, pady=10, sticky="nsew")
+        self.btn_vis_ordre.grid(row=0, column=4, padx=10, pady=10, sticky="nsew")
 
         # Initially hide the Treeviews
         self.vareliste_tree.grid_forget()
@@ -43,7 +48,6 @@ class SimpleGUI:
         for column in columns:
             tree.heading(column, text=column)
         self.master.columnconfigure(0, weight=1)
-        self.master.rowconfigure(1, weight=1)
 
     def display_grid(self, procedure, tree):
         # Hide treeviews and buttons
