@@ -253,8 +253,7 @@ class SimpleGUI:
 
                 # Update billing table and fetch billingnr
                 item_value = execute_stored_procedure("AddBill", (order_id,))
-                billing_nr = item_value[0][0
-                                           ]
+                billing_nr = item_value[0][0]
                 # Calculate the total sum of order
                 total_sum = sum(float(row[5]) for row in results_inspect_order)
 
